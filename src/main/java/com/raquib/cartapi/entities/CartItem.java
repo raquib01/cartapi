@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -23,6 +24,8 @@ public class CartItem {
     @Column(length = 36)
     private UUID id;
 
+    private Integer quantity;
+
     @ManyToOne
     @JoinColumn(name = "cart_id",referencedColumnName = "id")
     private Cart cart;
@@ -30,5 +33,9 @@ public class CartItem {
     @ManyToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private Product product;
+
+    public BigDecimal getTotalPrice(){
+        return this.product.getPrice().multiply(BigDecimal.valueOf(this.quantity));
+    }
 
 }

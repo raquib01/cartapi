@@ -23,11 +23,21 @@ public class Product {
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(length = 36)
     private UUID id;
-
     private String name;
     private String description;
     private BigDecimal price;
     private Integer stock;
+
+
+    public static Product create(String name,String description,BigDecimal price, int stock){
+        var product = new Product();
+        product.setName(name);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setStock(stock);
+
+        return product;
+    }
 
 
 }

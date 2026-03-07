@@ -8,10 +8,8 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CartItemDto {
+public class ProductItemDto {
     private UUID id;
-    private UUID cartId;
-    private ProductItemDto product;
-    private Integer quantity;
-    private BigDecimal totalPrice;
+    private String name;
+    private BigDecimal price;
 }

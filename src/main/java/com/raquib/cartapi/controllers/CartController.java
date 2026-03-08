@@ -2,6 +2,8 @@ package com.raquib.cartapi.controllers;
 
 import com.raquib.cartapi.dtos.AddToCartRequest;
 import com.raquib.cartapi.dtos.CartDto;
+import com.raquib.cartapi.dtos.CartItemDto;
+import com.raquib.cartapi.dtos.UpdateQuantityRequest;
 import com.raquib.cartapi.services.CartService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -10,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -52,6 +53,33 @@ public class CartController {
         var cartDto = cartService.getCart(id);
         if(cartDto.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("cart not found");
         return ResponseEntity.ok(cartDto.get());
+    }
+
+    @PutMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<CartItemDto> updateQuantity(@PathVariable UUID cartId, @PathVariable UUID productId, @Valid @RequestBody UpdateQuantityRequest request){
+
+        var cartItem = cartService.updateQuantity(cartId,productId,request.getQuantity());
+        if(cartItem == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(cartItem);
+    }
+
+    @DeleteMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<Void> clearCart(@PathVariable UUID cartId, @PathVariable UUID productId){
+        var isRemoved = cartService.removeProductFromCart(cartId,productId);
+        if (isRemoved) return ResponseEntity.noContent().build();
+        return ResponseEntity.notFound().build();
+
+    }
+
+    @DeleteMapping("/{cartId}/items")
+    public ResponseEntity<Void> clearCart(@PathVariable UUID cartId){
+        var isCleared = cartService.clearCart(cartId);
+        if(isCleared) return ResponseEntity.noContent().build();
+        return ResponseEntity.notFound().build();
+
     }
 
 

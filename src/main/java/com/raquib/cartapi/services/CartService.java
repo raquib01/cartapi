@@ -2,6 +2,7 @@ package com.raquib.cartapi.services;
 
 import com.raquib.cartapi.dtos.AddToCartResponse;
 import com.raquib.cartapi.dtos.CartDto;
+import com.raquib.cartapi.dtos.CartItemDto;
 import com.raquib.cartapi.entities.Cart;
 import com.raquib.cartapi.entities.CartItem;
 import com.raquib.cartapi.entities.Product;
@@ -81,5 +82,45 @@ public class CartService {
 
     public Optional<CartDto> getCart(UUID id) {
        return cartRepository.findById(id).map(cartMapper::toDto);
+    }
+
+    public CartItemDto updateQuantity(UUID cartId, UUID productId, int qty){
+        var cart = cartRepository.findById(cartId).orElse(null);
+        if(cart==null) return null;
+
+        var cartItem = cart.getItems().stream().filter(item->item.getProduct().getId().equals(productId))
+                .findFirst().orElse(null);
+
+        if(cartItem==null) return null;
+
+        cartItem.setQuantity(qty);
+        cartRepository.save(cart);
+        return cartMapper.toDto(cartItem);
+
+
+    }
+
+    public boolean removeProductFromCart(UUID cartId, UUID productId) {
+        var cart = cartRepository.findById(cartId).orElse(null);
+        if(cart==null) return false;
+
+        var cartItem = cart.getItems().stream().filter(item->item.getProduct().getId().equals(productId))
+                .findFirst().orElse(null);
+
+        if(cartItem==null) return false;
+        cart.getItems().remove(cartItem);
+        cartItem.setCart(null);
+
+        cartRepository.save(cart);
+        return true;
+    }
+
+    public boolean clearCart(UUID cartId) {
+        var cart = cartRepository.findById(cartId).orElse(null);
+        if(cart==null) return false;
+
+        cart.getItems().clear();
+        cartRepository.save(cart);
+        return true;
     }
 }

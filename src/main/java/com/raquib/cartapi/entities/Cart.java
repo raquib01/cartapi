@@ -42,6 +42,12 @@ public class Cart {
         return this.items.stream().map(CartItem::getTotalPrice).reduce(BigDecimal.ZERO,BigDecimal::add);
     }
 
+    public CartItem getItem(UUID productId){
+        return items.stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst().orElse(null);
+
+    }
     public static Cart create(){
         return new Cart();
     }

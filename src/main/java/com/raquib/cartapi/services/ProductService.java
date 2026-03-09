@@ -18,8 +18,8 @@ public class ProductService {
         this.productMapper = productMapper;
     }
 
-    public ProductDto createProduct(CreateProductRequest request) {
-        var product = productRepository.save(Product.create(request.getName(),request.getDescription(),request.getPrice(),request.getStock()));
+    public ProductDto createProduct(CreateProductRequest productObj) {
+        var product = productRepository.save(Product.create(productObj.getName(),productObj.getDescription(),productObj.getPrice(),productObj.getStock()));
         return productMapper.toDto(product);
     }
 }

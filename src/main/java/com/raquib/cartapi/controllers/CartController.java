@@ -25,61 +25,46 @@ public class CartController {
 
     @PostMapping
     public ResponseEntity<CartDto> createCart(){
-        var cart = cartService.createCart();
+        var cartDto = cartService.createCart();
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(cart.getId())
+                .buildAndExpand(cartDto.getId())
                 .toUri();
-        return ResponseEntity.created(location).body(cart);
+        return ResponseEntity.created(location).body(cartDto);
     }
 
     @PostMapping("add-to-cart/{cartId}")
-    public ResponseEntity<?> addToCart(@PathVariable UUID cartId, @Valid @RequestBody AddToCartRequest request){
-        var response = cartService.addToCart(cartId,request.getProductId());
-
-        if(response.isSuccess()) return ResponseEntity.ok(response.getCartItem());
-
-        var errorMsg = response.getErrorMsg();
-        if("cart not found".equals(errorMsg)) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMsg);
-        if("product not found".equals(errorMsg)) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
-
-        return ResponseEntity.badRequest().body(errorMsg);
-
+    public ResponseEntity<CartItemDto> addToCart(@PathVariable UUID cartId, @Valid @RequestBody AddToCartRequest request){
+        var cartItemDto = cartService.addToCart(cartId,request.getProductId());
+        return ResponseEntity.ok(cartItemDto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCart(@PathVariable UUID id){
+    public ResponseEntity<CartDto> getCart(@PathVariable UUID id){
         var cartDto = cartService.getCart(id);
-        if(cartDto.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("cart not found");
-        return ResponseEntity.ok(cartDto.get());
+        return ResponseEntity.ok(cartDto);
     }
 
     @PutMapping("/{cartId}/items/{productId}")
     public ResponseEntity<CartItemDto> updateQuantity(@PathVariable UUID cartId, @PathVariable UUID productId, @Valid @RequestBody UpdateQuantityRequest request){
 
         var cartItem = cartService.updateQuantity(cartId,productId,request.getQuantity());
-        if(cartItem == null){
-            return ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity.ok(cartItem);
     }
 
     @DeleteMapping("/{cartId}/items/{productId}")
-    public ResponseEntity<Void> clearCart(@PathVariable UUID cartId, @PathVariable UUID productId){
-        var isRemoved = cartService.removeProductFromCart(cartId,productId);
-        if (isRemoved) return ResponseEntity.noContent().build();
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> removeProductFromCart(@PathVariable UUID cartId, @PathVariable UUID productId){
+        cartService.removeProductFromCart(cartId,productId);
+        return ResponseEntity.noContent().build();
 
     }
 
     @DeleteMapping("/{cartId}/items")
     public ResponseEntity<Void> clearCart(@PathVariable UUID cartId){
-        var isCleared = cartService.clearCart(cartId);
-        if(isCleared) return ResponseEntity.noContent().build();
-        return ResponseEntity.notFound().build();
-
+        cartService.clearCart(cartId);
+        return ResponseEntity.noContent().build();
     }
 
 

@@ -1,19 +1,18 @@
 package com.raquib.cartapi.services;
 
-import com.raquib.cartapi.dtos.AddToCartResponse;
 import com.raquib.cartapi.dtos.CartDto;
 import com.raquib.cartapi.dtos.CartItemDto;
 import com.raquib.cartapi.entities.Cart;
 import com.raquib.cartapi.entities.CartItem;
-import com.raquib.cartapi.entities.Product;
+import com.raquib.cartapi.exceptions.CartNotFoundException;
+import com.raquib.cartapi.exceptions.OutOfStockException;
+import com.raquib.cartapi.exceptions.ProductNotFoundException;
 import com.raquib.cartapi.mappers.CartMapper;
 import com.raquib.cartapi.repositories.CartRepository;
 import com.raquib.cartapi.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,35 +35,23 @@ public class CartService {
     }
 
     @Transactional
-    public AddToCartResponse addToCart(UUID cartId, UUID productId) {
+    public CartItemDto addToCart(UUID cartId, UUID productId) {
 
-        var cartOpt = cartRepository.findById(cartId);
-        if (cartOpt.isEmpty())
-            return AddToCartResponse.failure("cart not found");
+        var cart = cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
 
-        var productOpt = productRepository.findById(productId);
-        if (productOpt.isEmpty())
-            return AddToCartResponse.failure("product not found");
-
-        var cart = cartOpt.get();
-        var product = productOpt.get();
+        var product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
 
         if (product.getStock() == 0)
-            return AddToCartResponse.failure("out of stock");
+            throw new OutOfStockException();
 
-        var existingItem = cart.getItems().stream()
-                .filter(item -> item.getProduct().getId().equals(product.getId()))
-                .findFirst();
+        var existingItem = cart.getItem(productId);
 
-        if (existingItem.isPresent()) {
+        if (existingItem != null) {
+            if (existingItem.getQuantity() + 1 > product.getStock())
+                throw new OutOfStockException();
 
-            var item = existingItem.get();
-
-            if (item.getQuantity() + 1 > product.getStock())
-                return AddToCartResponse.failure("not enough stock");
-
-            item.setQuantity(item.getQuantity() + 1);
-            return AddToCartResponse.success(cartMapper.toDto(item));
+            existingItem.setQuantity(existingItem.getQuantity() + 1);
+            return cartMapper.toDto(existingItem);
         }
 
         var newItem = new CartItem();
@@ -76,22 +63,22 @@ public class CartService {
 
         cartRepository.save(cart);
 
-        return AddToCartResponse.success(cartMapper.toDto(newItem));
+        return cartMapper.toDto(newItem);
     }
 
 
-    public Optional<CartDto> getCart(UUID id) {
-       return cartRepository.findById(id).map(cartMapper::toDto);
+    public CartDto getCart(UUID id) {
+       var cart = cartRepository.findById(id).orElseThrow(CartNotFoundException::new);
+       return cartMapper.toDto(cart);
     }
 
     public CartItemDto updateQuantity(UUID cartId, UUID productId, int qty){
-        var cart = cartRepository.findById(cartId).orElse(null);
-        if(cart==null) return null;
+        var cart = cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
 
-        var cartItem = cart.getItems().stream().filter(item->item.getProduct().getId().equals(productId))
-                .findFirst().orElse(null);
 
-        if(cartItem==null) return null;
+        var cartItem = cart.getItem(productId);
+
+        if(cartItem==null) throw new ProductNotFoundException();
 
         cartItem.setQuantity(qty);
         cartRepository.save(cart);
@@ -100,27 +87,24 @@ public class CartService {
 
     }
 
-    public boolean removeProductFromCart(UUID cartId, UUID productId) {
-        var cart = cartRepository.findById(cartId).orElse(null);
-        if(cart==null) return false;
+    public void removeProductFromCart(UUID cartId, UUID productId) {
+        var cart = cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
 
-        var cartItem = cart.getItems().stream().filter(item->item.getProduct().getId().equals(productId))
-                .findFirst().orElse(null);
 
-        if(cartItem==null) return false;
+        var cartItem = cart.getItem(productId);
+
+        if(cartItem==null) throw new ProductNotFoundException();
+
         cart.getItems().remove(cartItem);
         cartItem.setCart(null);
 
         cartRepository.save(cart);
-        return true;
     }
 
-    public boolean clearCart(UUID cartId) {
-        var cart = cartRepository.findById(cartId).orElse(null);
-        if(cart==null) return false;
+    public void clearCart(UUID cartId) {
+        var cart = cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
 
         cart.getItems().clear();
         cartRepository.save(cart);
-        return true;
     }
 }

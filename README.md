@@ -161,4 +161,34 @@ POST /api/products
   "stock": 50
 }
 ```
+---
 
+# 📦 User Endpoints
+
+## Create User
+
+Create a new User.
+
+```
+POST /api/user
+```
+
+### Request Body
+
+```
+{
+  "username": "UserName",
+  "password": "Password",
+  "role": "ROLE_USER" or "ROLE_ADMIN",
+}
+```
+
+---
+
+## Get User
+
+Fetch user details
+
+```
+GET /api/user/{username}
+```

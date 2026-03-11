@@ -8,24 +8,27 @@ import com.raquib.cartapi.exceptions.UserNotFoundException;
 import com.raquib.cartapi.mappers.UserMapper;
 import com.raquib.cartapi.repositories.UserRepository;
 import jakarta.validation.Valid;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
     public UserDto createUser(String userName, String password, String role) {
-        boolean existingUser = userRepository.findById(userName).isPresent();
+        boolean existingUser = userRepository.existsById(userName);
         if(existingUser) throw new UserAlreadyExistsException();
         role = role==null || role.isEmpty() ? "ROLE_USER" : role;
-        User user = new User(userName,password,role);
+        User user = new User(userName,passwordEncoder.encode(password),role);
         userRepository.save(user);
 
         return userMapper.toDto(user);

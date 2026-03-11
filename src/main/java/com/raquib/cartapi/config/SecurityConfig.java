@@ -3,10 +3,13 @@ package com.raquib.cartapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -29,7 +32,9 @@ public class SecurityConfig {
 
                 //  conditions for authentication
                 .authorizeHttpRequests(c-> c
-                                .requestMatchers("/api/**").authenticated()
+                                .requestMatchers("/api/carts/**").authenticated()
+                                .requestMatchers("/api/products/**").authenticated()
+                                .requestMatchers(HttpMethod.GET,"/api/user/{id}").authenticated()
                                 .anyRequest().permitAll())
 
                 // enabling default login form
@@ -41,5 +46,10 @@ public class SecurityConfig {
                 .build();
 
 
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
     }
 }

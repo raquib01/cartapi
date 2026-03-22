@@ -34,10 +34,6 @@ public class CartController {
         return ResponseEntity.created(location).body(cartDto);
     }
 
-    @PostMapping("/check")
-    public ResponseEntity<String> check(){
-        return ResponseEntity.ok("this is okay");
-    }
     @PostMapping("add-to-cart/{cartId}")
     public ResponseEntity<CartItemDto> addToCart(@PathVariable UUID cartId, @Valid @RequestBody AddToCartRequest request){
         var cartItemDto = cartService.addToCart(cartId,request.getProductId());

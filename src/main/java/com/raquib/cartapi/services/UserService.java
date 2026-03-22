@@ -1,13 +1,11 @@
 package com.raquib.cartapi.services;
 
-import com.raquib.cartapi.dtos.CreateUserRequest;
 import com.raquib.cartapi.dtos.UserDto;
 import com.raquib.cartapi.entities.User;
 import com.raquib.cartapi.exceptions.UserAlreadyExistsException;
 import com.raquib.cartapi.exceptions.UserNotFoundException;
 import com.raquib.cartapi.mappers.UserMapper;
 import com.raquib.cartapi.repositories.UserRepository;
-import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

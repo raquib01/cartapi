@@ -1,29 +1,36 @@
 package com.raquib.cartapi.controllers;
 
+import com.raquib.cartapi.dtos.JwtResponse;
 import com.raquib.cartapi.dtos.LoginRequest;
+import com.raquib.cartapi.services.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
-
-    public AuthController(AuthenticationManager authenticationManager) {
+    private final JwtService jwtService;
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService) {
         this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody @Valid LoginRequest loginRequest){
+    public ResponseEntity<JwtResponse> login(@RequestBody @Valid LoginRequest loginRequest){
         var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword()));
-        System.out.println(auth);
+        String jwtToken = jwtService.generateToken(loginRequest.getUsername());
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new JwtResponse(jwtToken));
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<String> validate(@RequestHeader("Authorization") String authHeader){
+        String token = authHeader.substring(7);
+        boolean res = jwtService.validateToken(token);
+        return ResponseEntity.ok(Boolean.valueOf(res).toString());
     }
 }

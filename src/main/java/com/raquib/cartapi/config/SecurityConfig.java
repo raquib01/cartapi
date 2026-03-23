@@ -1,9 +1,11 @@
 package com.raquib.cartapi.config;
 
 
+import com.raquib.cartapi.filters.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,14 +18,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
@@ -41,12 +46,17 @@ public class SecurityConfig {
                 // disabling csrf
                 .csrf(c ->c.disable())
 
+                // adding JWT Auth Filter
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
                 //  conditions for authentication
                 .authorizeHttpRequests(c-> c
-                                .requestMatchers("/api/carts/**").authenticated()
-                                .requestMatchers("/api/products/**").authenticated()
-                                .requestMatchers(HttpMethod.GET,"/api/user/{id}").authenticated()
-                                .anyRequest().permitAll())
+                        // PUBLIC ENDPOINTS
+                        .requestMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/user").permitAll()
+
+                        // EVERYTHING ELSE PROTECTED
+                        .anyRequest().authenticated())
 
                 // enabling default login form
                 // .formLogin(Customizer.withDefaults())

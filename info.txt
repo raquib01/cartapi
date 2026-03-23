@@ -1,0 +1,31 @@
+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyYXF1aWIwMSIsImV4cCI6MTc3NDI4MTMxMywiaWF0IjoxNzc0MjgxMzEyfQ.Ea0N_FO6hbeLTzj2GKs4ZLY4iNaFoV8kANmTAL3a8pI
+
+1. login user
+POST /api/auth/login
+
+2. create cart
+POST /api/carts
+
+3. add to cart
+POST /api/carts/add-to-cart/{cartId}
+
+4. get cart
+GET /api/carts/{id}
+
+5. update quantity
+PUT /api/carts/{cartId}/items/{productId}
+
+6. remove product from cart
+DELETE /api/carts/{cartId}/items/{productId}
+
+7. clear cart
+DELETE /api/carts/{cartId}/items
+
+8. create product
+POST /api/products
+
+9. register user
+POST /api/user
+
+10. get user
+GET /api/user/{id}

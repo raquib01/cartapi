@@ -192,3 +192,24 @@ Fetch user details
 ```
 GET /api/user/{username}
 ```
+
+---
+
+## Login User
+
+Create a new User.
+
+```
+POST /api/auth/login
+```
+
+### Request Body
+
+```
+{
+  "username": "UserName",
+  "password": "Password",
+}
+```
+
+---

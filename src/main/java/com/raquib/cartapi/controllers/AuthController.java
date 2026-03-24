@@ -1,5 +1,6 @@
 package com.raquib.cartapi.controllers;
 
+import com.raquib.cartapi.config.JwtConfig;
 import com.raquib.cartapi.dtos.JwtResponse;
 import com.raquib.cartapi.dtos.LoginRequest;
 import com.raquib.cartapi.services.JwtService;
@@ -17,9 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService) {
+    private final JwtConfig jwtConfig;
+
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, JwtConfig jwtConfig) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.jwtConfig = jwtConfig;
     }
 
     @PostMapping("/login")
@@ -33,7 +37,7 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/api/auth/refresh-token");
-        cookie.setMaxAge(604800); // milliseconds in 7d
+        cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
         // TODO: same site strict not set yet
         response.addCookie(cookie);
         return ResponseEntity.ok(new JwtResponse(accessToken));

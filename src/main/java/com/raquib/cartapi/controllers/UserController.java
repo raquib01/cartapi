@@ -6,6 +6,7 @@ import com.raquib.cartapi.services.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,8 +29,10 @@ public class UserController {
         return ResponseEntity.created(location).body(userDto);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable("id") String username){
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getUser(){
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = (String) (authentication != null ? authentication.getPrincipal() : null);
         var userDto = userService.getUser(username);
 
         return ResponseEntity.ok(userDto);

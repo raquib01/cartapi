@@ -1,31 +1,33 @@
 eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyYXF1aWIwMSIsImV4cCI6MTc3NDI4MTMxMywiaWF0IjoxNzc0MjgxMzEyfQ.Ea0N_FO6hbeLTzj2GKs4ZLY4iNaFoV8kANmTAL3a8pI
 
-1. login user
-POST /api/auth/login
+PUBLIC:
+    # login user
+    POST /api/auth/login
 
-2. create cart
-POST /api/carts
+    # register user
+    POST /api/user
 
-3. add to cart
-POST /api/carts/add-to-cart/{cartId}
+PRIVATE:
+    # create cart
+    POST /api/carts
 
-4. get cart
-GET /api/carts/{id}
+    # add to cart
+    POST /api/carts/add-to-cart/{cartId}
 
-5. update quantity
-PUT /api/carts/{cartId}/items/{productId}
+    # get cart
+    GET /api/carts/{id}
 
-6. remove product from cart
-DELETE /api/carts/{cartId}/items/{productId}
+    # update quantity
+    PUT /api/carts/{cartId}/items/{productId}
 
-7. clear cart
-DELETE /api/carts/{cartId}/items
+    # remove product from cart
+    DELETE /api/carts/{cartId}/items/{productId}
 
-8. create product
-POST /api/products
+    # clear cart
+    DELETE /api/carts/{cartId}/items
 
-9. register user
-POST /api/user
+    # create product
+    POST /api/products
 
-10. get user
-GET /api/user/{id}
+    # get user
+    GET /api/user/me

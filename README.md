@@ -190,7 +190,7 @@ POST /api/user
 Fetch user details
 
 ```
-GET /api/user/{username}
+GET /api/user/me
 ```
 
 ---

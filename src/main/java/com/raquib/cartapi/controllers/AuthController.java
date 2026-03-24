@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,7 +23,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody @Valid LoginRequest loginRequest){
         var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword()));
-        String jwtToken = jwtService.generateToken(loginRequest.getUsername());
+        String role = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).findFirst().orElse(null);
+        String jwtToken = jwtService.generateToken(loginRequest.getUsername(),role);
 
         return ResponseEntity.ok(new JwtResponse(jwtToken));
     }

@@ -32,6 +32,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getUser(){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(authentication);
         String username = (String) (authentication != null ? authentication.getPrincipal() : null);
         var userDto = userService.getUser(username);
 

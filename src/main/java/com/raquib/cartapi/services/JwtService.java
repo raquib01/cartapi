@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -16,11 +17,12 @@ public class JwtService {
     @Value("${spring.jwt.secret}")
     private String secret;
 
-    public String generateToken(String username){
+    public String generateToken(String username, String role){
         final long expirationTime = 86400000; // milliseconds in 24hrs
         return Jwts
                 .builder()
                 .subject(username)
+                .claim("role",role)
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .issuedAt(new Date())
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
@@ -29,7 +31,7 @@ public class JwtService {
 
     }
 
-    public Optional<String> validateToken(String token){
+    public Optional<Map<String,String>> validateToken(String token){
         try{
             Claims claims = Jwts
                             .parser()
@@ -37,7 +39,7 @@ public class JwtService {
                             .build()
                             .parseSignedClaims(token)
                             .getPayload();
-            return Optional.of(claims.getSubject());
+            return Optional.of(Map.of("username",claims.getSubject(),"role",claims.get("role",String.class)));
         }catch (ExpiredJwtException e){
             return Optional.empty();
         }catch (JwtException e){

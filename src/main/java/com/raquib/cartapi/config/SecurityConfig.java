@@ -53,7 +53,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(c-> c
                         // PUBLIC ENDPOINTS
                         .requestMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/auth/refresh-token").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/user").permitAll()
+
+                        // ROLE RESTRICTED
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // EVERYTHING ELSE PROTECTED
                         .anyRequest().authenticated())

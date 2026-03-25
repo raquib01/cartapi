@@ -2,6 +2,7 @@ package com.raquib.cartapi.config;
 
 
 import com.raquib.cartapi.filters.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -67,7 +68,14 @@ public class SecurityConfig {
 
                 // enabling basic auth for postman
                 // .httpBasic(Customizer.withDefaults())
-
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint((req, res, ex) -> {
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        })
+                        .accessDeniedHandler((req, res, ex) -> {
+                            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        })
+                )
                 .build();
 
 

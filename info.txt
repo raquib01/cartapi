@@ -1,4 +1,3 @@
-TODO: changing default status of unauthorized jwt
 TODO: same site strict not set yet for refresh token cookie
 TODO: cart is not bind to user
 PUBLIC:

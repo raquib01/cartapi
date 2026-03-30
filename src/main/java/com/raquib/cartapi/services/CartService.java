@@ -50,7 +50,7 @@ public class CartService {
             if (existingItem.getQuantity() + 1 > product.getStock())
                 throw new OutOfStockException();
 
-            existingItem.setQuantity(existingItem.getQuantity() + 1);
+             existingItem.setQuantity(existingItem.getQuantity() + 1);
             return cartMapper.toDto(existingItem);
         }
 

@@ -1,9 +1,6 @@
 package com.raquib.cartapi.controllers;
 
-import com.raquib.cartapi.exceptions.CartNotFoundException;
-import com.raquib.cartapi.exceptions.ProductNotFoundException;
-import com.raquib.cartapi.exceptions.UserAlreadyExistsException;
-import com.raquib.cartapi.exceptions.UserNotFoundException;
+import com.raquib.cartapi.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,5 +27,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<String> handleUserAlreadyExists(UserAlreadyExistsException ex){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CheckoutFailedException.class)
+    public ResponseEntity<String> handleCheckoutFailure(CheckoutFailedException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+    @ExceptionHandler(OutOfStockException.class)
+    public ResponseEntity<String> handleCheckoutFailure(OutOfStockException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }

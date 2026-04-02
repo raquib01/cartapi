@@ -104,7 +104,7 @@ public class CartService {
     public void clearCart(UUID cartId) {
         var cart = cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
 
-        cart.getItems().clear();
+        cart.getItems().clear(); // it creates N delete queries, for optimization, custom query can be used
         cartRepository.save(cart);
     }
 }

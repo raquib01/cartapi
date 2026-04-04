@@ -4,6 +4,7 @@ import com.raquib.cartapi.dtos.OrderDto;
 import com.raquib.cartapi.entities.*;
 import com.raquib.cartapi.exceptions.CartNotFoundException;
 import com.raquib.cartapi.exceptions.CheckoutFailedException;
+import com.raquib.cartapi.exceptions.OrderNotFoundException;
 import com.raquib.cartapi.exceptions.UserNotFoundException;
 import com.raquib.cartapi.mappers.OrderMapper;
 import com.raquib.cartapi.repositories.CartRepository;
@@ -13,6 +14,8 @@ import org.aspectj.weaver.ast.Or;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 @Service
 public class OrderService {
@@ -44,7 +47,7 @@ public class OrderService {
 
         User user = userRepository.findById(username).orElseThrow(UserNotFoundException::new);
         order.setUser(user);
-         order.setStatus(OrderStatus.CREATED);
+         order.setStatus(OrderStatus. PENDING_PAYMENT);
 
         for(var item: cart.getItems()){
             OrderItem orderItem = new OrderItem();
@@ -60,4 +63,33 @@ public class OrderService {
 
         return orderMapper.toDto(order);
     }
+
+     public List<OrderDto> getOrdersForCurrentUser(){
+         var auth = SecurityContextHolder.getContext().getAuthentication();
+         String username = (String) (auth != null ? auth.getPrincipal() : null);
+
+         User user = userRepository.findById(username).orElseThrow(UserNotFoundException::new);
+
+          var orders = orderRepository.getOrderByUser(user);
+
+          return orders.stream().map(orderMapper::toDto).toList();
+
+     }
+
+     public OrderDto getOrderById(UUID orderId){
+
+        var order = orderRepository.getOrderById(orderId).orElseThrow(OrderNotFoundException::new);
+
+         var auth = SecurityContextHolder.getContext().getAuthentication();
+         String username = (String) (auth != null ? auth.getPrincipal() : null);
+
+         User user = userRepository.findById(username).orElseThrow(UserNotFoundException::new);
+
+
+         if(!user.getUsername().equals(order.getUser().getUsername())){
+             throw new OrderNotFoundException();
+         }
+
+         return orderMapper.toDto(order);
+     }
 }

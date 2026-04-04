@@ -57,4 +57,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleCheckoutFailure(OutOfStockException ex){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<String> handleCheckoutFailure(OrderNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

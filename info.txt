@@ -1,6 +1,7 @@
 TODO: same site strict not set yet for refresh token cookie
 TODO: cart is not bind to user
 TODO: gets id as null in addtocart
+TODO: create a readme with all endpoints
 
 PUBLIC:
     # login user

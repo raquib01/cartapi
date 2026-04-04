@@ -29,7 +29,7 @@ public class Order {
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status = OrderStatus.CREATED;
+    private OrderStatus status = OrderStatus.PENDING_PAYMENT;
 
     private BigDecimal totalPrice;
 

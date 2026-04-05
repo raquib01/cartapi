@@ -16,4 +16,5 @@ public class OrderDto {
     private OrderStatus status;
     private BigDecimal totalPrice;
     private List<OrderItemDto> items = new ArrayList<>();
+    private String sessionUrl;
 }

@@ -1,21 +1,20 @@
 package com.raquib.cartapi.services;
 
+import com.raquib.cartapi.dtos.CheckoutSession;
 import com.raquib.cartapi.dtos.OrderDto;
 import com.raquib.cartapi.entities.*;
-import com.raquib.cartapi.exceptions.CartNotFoundException;
 import com.raquib.cartapi.exceptions.CheckoutFailedException;
 import com.raquib.cartapi.exceptions.OrderNotFoundException;
+import com.raquib.cartapi.exceptions.PaymentException;
 import com.raquib.cartapi.exceptions.UserNotFoundException;
 import com.raquib.cartapi.mappers.OrderMapper;
 import com.raquib.cartapi.repositories.CartRepository;
 import com.raquib.cartapi.repositories.OrderRepository;
 import com.raquib.cartapi.repositories.UserRepository;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 @Service
 public class OrderService {
@@ -24,13 +23,16 @@ public class OrderService {
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
     private final CartService cartService;
+    private final PaymentGateway paymentGateway;
 
-    public OrderService(OrderRepository orderRepository, CartRepository cartRepository, UserRepository userRepository, OrderMapper orderMapper, CartService cartService) {
+
+    public OrderService(OrderRepository orderRepository, CartRepository cartRepository, UserRepository userRepository, OrderMapper orderMapper, CartService cartService, PaymentGateway paymentGateway) {
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
         this.orderMapper = orderMapper;
         this.cartService = cartService;
+        this.paymentGateway = paymentGateway;
     }
 
 
@@ -59,9 +61,20 @@ public class OrderService {
             order.getItems().add(orderItem);
         }
         orderRepository.save(order);
-        cartService.clearCart(cart.getId());
 
-        return orderMapper.toDto(order);
+        // create payment session
+        try {
+            var session = paymentGateway.createCheckoutSession(order);
+            cartService.clearCart(cart.getId());
+
+            var orderDto = orderMapper.toDto(order);
+            orderDto.setSessionUrl(session.getCheckoutUrl());
+            return orderDto;
+        }catch (PaymentException ex){
+            order.setStatus(OrderStatus.FAILED);
+            orderRepository.save(order);
+            throw ex;
+        }
     }
 
      public List<OrderDto> getOrdersForCurrentUser(){
@@ -92,4 +105,18 @@ public class OrderService {
 
          return orderMapper.toDto(order);
      }
+
+     public void updateOrderStatus(String orderId){
+        var orderOpt = orderRepository.findById(UUID.fromString(orderId));
+        if(orderOpt.isPresent()){
+            var order = orderOpt.get();
+
+            if(order.getStatus() == OrderStatus.PAID){
+                return; // ✅ already processed
+            }
+            order.setStatus(OrderStatus.PAID);
+            orderRepository.save(order);
+        }
+     }
+
 }

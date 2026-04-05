@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/api/auth/refresh-token").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/user").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/order/stripe-webhook").permitAll()
 
                         // ROLE RESTRICTED
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

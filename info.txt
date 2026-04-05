@@ -2,6 +2,8 @@ TODO: same site strict not set yet for refresh token cookie
 TODO: cart is not bind to user
 TODO: gets id as null in addtocart
 TODO: create a readme with all endpoints
+TODO: should i notedown stripe implemenation
+TODO: what will i need to change in strip integration if my proj goes prod
 
 PUBLIC:
     # login user

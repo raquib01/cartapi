@@ -1,46 +1,4 @@
 TODO: same site strict not set yet for refresh token cookie
 TODO: cart is not bind to user
 TODO: gets id as null in addtocart
-TODO: create a readme with all endpoints
 
-PUBLIC:
-    # login user
-    POST /api/auth/login
-
-    # refresh token
-    POST /api/auth/refresh-token
-
-    # logout
-    POST /api/auth/logout
-
-    # register user
-    POST /api/user
-
-PROTECTED:
-    # admin route
-    GET /api/admin/hello
-
-PRIVATE:
-    # create cart
-    POST /api/carts
-
-    # add to cart
-    POST /api/carts/add-to-cart/{cartId}
-
-    # get cart
-    GET /api/carts/{id}
-
-    # update quantity
-    PUT /api/carts/{cartId}/items/{productId}
-
-    # remove product from cart
-    DELETE /api/carts/{cartId}/items/{productId}
-
-    # clear cart
-    DELETE /api/carts/{cartId}/items
-
-    # create product
-    POST /api/products
-
-    # get user
-    GET /api/user/me
